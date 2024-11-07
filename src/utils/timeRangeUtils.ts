@@ -1,6 +1,7 @@
 import dayjs from 'dayjs';
 import moment from 'moment-timezone';
 import _ from 'lodash';
+import { FixedDuration } from '@/constants/timeConstants';
 
 const defaultTimeRangeOption = {
 	value: 'none',
@@ -70,6 +71,12 @@ const getDefaultTimeRangeOption = (
 
 // accepts a date-time string and outputs a human readable string with timezone
 // output format 31/12/1990 11:59 pm IST
+
+const getLocalTimezone = () => {
+	const localTimeZone = moment.tz.guess();
+	return moment.tz(localTimeZone).format('z');
+};
+
 const formatDateWithTimezone = (dateTime: string | Date, format: string = 'DD/MM/YYYY h:mm a z'): string => {
 	const localTimeZone = moment.tz.guess();
 	const convertedDate = moment.tz(dateTime, localTimeZone);
@@ -78,6 +85,13 @@ const formatDateWithTimezone = (dateTime: string | Date, format: string = 'DD/MM
 
 const formatDateAsCastType = (date: Date): string => {
 	return dayjs(date).utc().format('YYYY-MM-DD HH:mm:ss[Z]');
+};
+
+const getRelativeStartAndEndDate = (duration: FixedDuration) => {
+	const now = dayjs().startOf('minute');
+	const startTime = now.subtract(duration.milliseconds, 'milliseconds');
+	const endTime = now;
+	return { startTime, endTime };
 };
 
 const timeRangeUtils = {
@@ -90,6 +104,8 @@ const timeRangeUtils = {
 	formatTime,
 	formatDay,
 	formatDateAsCastType,
+	getRelativeStartAndEndDate,
+	getLocalTimezone
 };
 
 export default timeRangeUtils;

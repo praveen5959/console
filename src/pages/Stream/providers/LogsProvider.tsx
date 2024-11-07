@@ -83,7 +83,7 @@ export type TransformedAlerts = {
 	alerts: TransformedAlert[];
 };
 
-type TimeRange = {
+export type TimeRange = {
 	startTime: Date;
 	endTime: Date;
 	type: 'fixed' | 'custom';
@@ -114,6 +114,14 @@ type LiveTailConfig = {
 	liveTailSearchValue: string;
 	liveTailSearchField: string;
 	showLiveTail: boolean;
+};
+
+export const formatLogTs = (timestamp: string) => {
+	if (!_.endsWith(timestamp, 'Z')) {
+		return timeRangeUtils.formatDateWithTimezone(`${timestamp}Z`, 'yyyy-MM-DDTHH:mm:ss.SSSZ');
+	} else {
+		return timeRangeUtils.formatDateWithTimezone(timestamp, 'yyyy-MM-DDTHH:mm:ss.SSSZ');
+	}
 };
 
 const getDefaultTimeRange = (duration: FixedDuration = DEFAULT_FIXED_DURATIONS) => {
@@ -240,6 +248,7 @@ type LogsStoreReducers = {
 	resetQuickFilters: (store: LogsStore) => ReducerOutput;
 	streamChangeCleanup: (store: LogsStore) => ReducerOutput;
 	toggleQueryBuilder: (store: LogsStore, val?: boolean) => ReducerOutput;
+	setCustQuerySearchState: (store: LogsStore, query: string, viewMode: string) => ReducerOutput;
 	resetCustQuerySearchState: (store: LogsStore) => ReducerOutput;
 	toggleCustQuerySearchViewMode: (store: LogsStore, targetMode: 'sql' | 'filters') => ReducerOutput;
 	toggleDeleteModal: (store: LogsStore, val?: boolean) => ReducerOutput;
@@ -350,7 +359,7 @@ const initialState: LogsStore = {
 const { Provider: LogsProvider, useStore: useLogsStore } = initContext(initialState);
 
 const getTotalPages = (data: Log[], perPage: number) => {
-	return _.isEmpty(data) ? 0 : _.size(data) / perPage;
+	return _.isEmpty(data) ? 0 : Math.ceil(_.size(data) / perPage);
 };
 
 const setSelectedLog = (_store: LogsStore, log: Log | null) => {
@@ -443,6 +452,22 @@ const toggleQueryBuilder = (store: LogsStore, val?: boolean) => {
 			...custQuerySearchState,
 			showQueryBuilder: _.isBoolean(val) ? val : !custQuerySearchState.showQueryBuilder,
 		},
+	};
+};
+
+const setCustQuerySearchState = (store: LogsStore, query: string, viewMode: string) => {
+	const { timeRange } = store;
+	return {
+		custQuerySearchState: {
+			showQueryBuilder: false,
+			savedFilterId: null,
+			isQuerySearchActive: true,
+			custSearchQuery: query,
+			viewMode,
+			activeMode: viewMode === 'filters' ? ('filters' as 'filters') : ('sql' as 'sql'),
+		},
+		...getCleanStoreForRefetch(store),
+		timeRange,
 	};
 };
 
@@ -910,7 +935,6 @@ const onToggleView = (store: LogsStore, viewMode: 'json' | 'table') => {
 			instantSearchValue: '',
 			currentPage,
 			totalPages: getTotalPages(filteredData, tableOpts.perPage),
-			configViewType: 'schema' as 'schema',
 		},
 		viewMode,
 	};
@@ -993,7 +1017,8 @@ const logsStoreReducers: LogsStoreReducers = {
 	setDisabledColumns,
 	setOrderedHeaders,
 	toggleWordWrap,
-	toggleWrapDisabledColumns
+	toggleWrapDisabledColumns,
+	setCustQuerySearchState,
 };
 
 export { LogsProvider, useLogsStore, logsStoreReducers };
