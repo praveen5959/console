@@ -178,6 +178,7 @@ const SavedFiltersModal = () => {
 	);
 	const startTimeString = startTime.toISOString();
 	const endTimeString = endTime.toISOString();
+	console.log(activeSavedFilters);
 
 	const onFilterBuilderQueryApply = useCallback(
 		(query: QueryType, id: string) => {
