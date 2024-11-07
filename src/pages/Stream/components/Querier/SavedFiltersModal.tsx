@@ -151,8 +151,8 @@ const SavedFilterItem = (props: {
 							_.isString(query.filter_query)
 								? query.filter_query
 								: query.filter_builder
-								? parseQuery(props.queryEngine, query.filter_builder, stream_name).parsedQuery
-								: ''
+									? parseQuery(props.queryEngine, query.filter_builder, stream_name).parsedQuery
+									: ''
 						}
 						language="sql"
 						withCopyButton={false}

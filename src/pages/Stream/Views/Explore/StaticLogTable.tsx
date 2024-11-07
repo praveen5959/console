@@ -53,8 +53,8 @@ const makeHeaderOpts = (headers: string[], isSecureHTTPContext: boolean, fieldTy
 						const sanitizedValue = isTimestamp
 							? formatLogTs(value)
 							: _.isBoolean(value) || value
-							? _.toString(value)
-							: '';
+								? _.toString(value)
+								: '';
 						return (
 							<div className={tableStyles.customCellContainer} style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
 								{sanitizedValue}

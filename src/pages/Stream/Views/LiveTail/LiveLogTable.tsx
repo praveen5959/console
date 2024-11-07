@@ -1,8 +1,6 @@
 import { FC, useEffect, useState } from 'react';
 import { ScrollArea, Table, Box } from '@mantine/core';
-import { Tbody, 
-	Thead
- } from '@/components/Table';
+import { Tbody, Thead } from '@/components/Table';
 import LogRow from './LiveLogRow';
 import { useDoGetLiveTail } from '@/hooks/useDoGetLiveTail';
 import EmptyBox from '@/components/Empty';
@@ -69,9 +67,7 @@ const LiveLogTable: FC = () => {
 
 	const classes = styles;
 
-	const { container, tableStyle, 
-		liveTheadStyle, 
-		tableContainer, innerContainer } = classes;
+	const { container, tableStyle, liveTheadStyle, tableContainer, innerContainer } = classes;
 
 	return (
 		<Box className={container}>

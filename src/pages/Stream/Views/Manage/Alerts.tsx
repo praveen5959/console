@@ -574,7 +574,7 @@ const AlertsModal = (props: {
 	);
 };
 
-const Header = (props: { selectAlert: selectAlert; isLoading: boolean, showCreateBtn: boolean }) => {
+const Header = (props: { selectAlert: selectAlert; isLoading: boolean; showCreateBtn: boolean }) => {
 	return (
 		<Stack className={classes.headerContainer} style={{ minHeight: '3rem', maxHeight: '3rem' }}>
 			<Text className={classes.title}>Alerts</Text>
