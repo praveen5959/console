@@ -520,8 +520,8 @@ const sanitizeFormValues = (form: TileFormType, type: 'create' | 'update'): Edit
 	const vizElementConfig = isCircularChart(visualization_type)
 		? { circular_chart_config }
 		: isGraph(visualization_type)
-		? { graph_config }
-		: {};
+			? { graph_config }
+			: {};
 	return {
 		name,
 		description,

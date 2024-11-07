@@ -36,7 +36,7 @@ const makeTimeRangeOptions = ({
 							to: selected.to,
 						},
 					},
-			  ]
+				]
 			: []),
 	];
 };
@@ -105,7 +105,7 @@ const timeRangeUtils = {
 	formatDay,
 	formatDateAsCastType,
 	getRelativeStartAndEndDate,
-	getLocalTimezone
+	getLocalTimezone,
 };
 
 export default timeRangeUtils;
