@@ -1,8 +1,8 @@
-import React, { FC, MutableRefObject, useCallback, useEffect, useState, useRef } from 'react';
-import Editor from '@monaco-editor/react';
+import { FC, MutableRefObject, useCallback, useEffect, useState, useRef } from 'react';
+import * as monaco from 'monaco-editor';
 import { Box, Button, Flex, ScrollArea, Stack, Text, TextInput } from '@mantine/core';
 import { QueryEngineType } from '@/@types/parseable/api/about';
-import { ErrorMarker, errChecker } from '../ErrorMarker';
+// import { ErrorMarker, errChecker } from '../ErrorMarker';
 import useMountedState from '@/hooks/useMountedState';
 import { notify } from '@/utils/notification';
 import { usePostLLM } from '@/hooks/usePostLLM';
@@ -14,6 +14,8 @@ import { LOAD_LIMIT, useLogsStore } from '../../providers/LogsProvider';
 import { useStreamStore } from '../../providers/StreamProvider';
 import { formQueryOpts } from '@/api/query';
 import _ from 'lodash';
+import { LanguageIdEnum } from 'monaco-sql-languages';
+import './languageSetup.ts';
 
 const genColumnConfig = (fields: Field[]) => {
 	const columnConfig = { leftColumns: [], rightColumns: [] };
@@ -70,8 +72,6 @@ const QueryCodeEditor: FC<{
 	);
 	const [schema] = useStreamStore((store) => store.schema);
 	const fields = schema?.fields || [];
-	const editorRef = React.useRef<any>();
-	const monacoRef = React.useRef<any>();
 	const [currentStream] = useAppStore((store) => store.currentStream);
 	const [localStreamName, setlocalStreamName] = useMountedState<string | null>(currentStream);
 	const [query, setQuery] = useMountedState<string>('');
@@ -93,6 +93,30 @@ const QueryCodeEditor: FC<{
 			);
 		}
 	}, [currentStream, timeRange.startTime, timeRange.endTime, timePartitionColumn]);
+
+	const hostRef = useRef<HTMLDivElement>(null);
+	const editorRef = useRef<monaco.editor.IStandaloneCodeEditor>();
+
+	useEffect(() => {
+		if (hostRef.current && !editorRef.current) {
+			console.log(query);
+
+			editorRef.current = monaco.editor.create(hostRef.current, {
+				language: LanguageIdEnum.MYSQL,
+				value: query,
+			});
+			editorRef.current.onDidChangeModelContent(() => {
+				const code = editorRef.current?.getValue();
+				handleEditorChange(code);
+			});
+		}
+	}, [query]);
+
+	useEffect(() => {
+		if (editorRef.current && query !== editorRef.current.getValue()) {
+			editorRef.current.setValue(query);
+		}
+	}, [query]);
 
 	const updateQuery = useCallback((query: string) => {
 		props.queryCodeEditorRef.current = query;
@@ -124,8 +148,7 @@ const QueryCodeEditor: FC<{
 	const handleEditorChange = (code: any) => {
 		if (currentStream) {
 			updateQuery(code);
-			errChecker(code, currentStream);
-			monacoRef.current?.editor.setModelMarkers(editorRef.current?.getModel(), 'owner', ErrorMarker);
+			// errChecker(code, currentStream);
 		}
 	};
 
@@ -177,7 +200,8 @@ const QueryCodeEditor: FC<{
 			</Box>
 			<SchemaList {...{ currentStream, fields }} />
 			<Stack style={{ height: 200, flex: 1 }}>
-				<Editor
+				<div ref={hostRef} style={{ height: '100%', width: '100%' }} />
+				{/* <Editor
 					defaultLanguage="sql"
 					value={query}
 					onChange={handleEditorChange}
@@ -192,7 +216,7 @@ const QueryCodeEditor: FC<{
 						padding: { top: 8 },
 					}}
 					// onMount={handleEditorDidMount}
-				/>
+				/> */}
 			</Stack>
 			<Stack className={queryCodeStyles.footer} style={{ alignItems: 'center' }}>
 				<Button onClick={props.onClear} disabled={!isSqlSearchActive} variant="outline">
